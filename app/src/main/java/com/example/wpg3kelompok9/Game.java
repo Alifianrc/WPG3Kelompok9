@@ -1,9 +1,13 @@
 package com.example.wpg3kelompok9;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.Display;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -14,24 +18,69 @@ import androidx.annotation.NonNull;
  * updating all states and render all object to the screen
  */
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
-
+    private final Player player;
     private GameLoop gameLoop;
-    private Context context;
+    private int screenSizeX;
+    private int screenSizeY;
+    private Bitmap bitmapPlayer;
+    private Joystick joystick;
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        // Handle Touch Event action
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if(joystick.isPressed((double) event.getX(), (double) event.getY())){
+                    joystick.setIsPressed(true);
+                }
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                if(joystick.getIsPressed()){
+                    joystick.setActuator((double) event.getX(), (double) event.getY());
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                joystick.setIsPressed(false);
+                joystick.resetActuator();
+                return true;
+        }
+
+
+        return super.onTouchEvent(event);
+    }
+
 
     // The Constructor
-    public Game(Context context) {
+    public Game(Context context, int screenX, int screenY) {
         super(context);
 
         // Get surface holder and add callback
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 
-        this.context = context;
-
+        // Game Loop for FPS adn UPS
         gameLoop = new GameLoop(this, surfaceHolder);
+
+        // Load Bitmap
+        bitmapPlayer = BitmapFactory.decodeResource(this.getResources(),R.drawable.slime);
+
+
+        // Save screen size
+        screenSizeX = screenX;
+        screenSizeY = screenY;
+
+        // Initialize player
+        player = new Player(screenX/2,screenY/2, bitmapPlayer);
+
+        // Initialize Joystick
+        joystick = new Joystick(275, 850, 120, 60);
 
         setFocusable(true);
     }
+
+
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -53,6 +102,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         super.draw(canvas);
         drawUPS(canvas);
         drawFPS(canvas);
+
+        joystick.draw(canvas);
+        player.draw(canvas);
     }
 
     public void drawUPS(Canvas canvas) {
@@ -73,5 +125,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update() {
         //Update game state
+        joystick.update();
+        player.update(joystick);
     }
 }

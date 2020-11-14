@@ -14,7 +14,7 @@ public class GameLoop extends Thread {
     private SurfaceHolder surfaceHolder;
     private double averageUPS;
     private double averageFPS;
-    private static final double MAX_UPS = 60.0;
+    public static final double MAX_UPS = 60.0;
     private static final double UPS_PERIOD = 1E+3/MAX_UPS;
 
     public GameLoop(Game game, SurfaceHolder surfaceHolder) {
