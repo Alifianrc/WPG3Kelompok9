@@ -8,6 +8,8 @@ import android.view.Display;
 
 public class MainActivity extends Activity {
 
+    Game game;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,10 +24,11 @@ public class MainActivity extends Activity {
         int screenSizeX = size.x;
         int screenSizeY = size.y;
 
+        game = new Game(this, screenSizeX, screenSizeY);
 
         // Set content view to game, so that object in
         // The game class can be rendered to the screen
-        setContentView(new Game(this, screenSizeX, screenSizeY));
+        setContentView(game);
     }
 
 
