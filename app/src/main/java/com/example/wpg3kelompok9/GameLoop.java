@@ -19,8 +19,6 @@ public class GameLoop extends Thread {
     private double averageFPS;
     public static final double MAX_UPS = 60.0;
     private static final double UPS_PERIOD = 1E+3/MAX_UPS;
-    private long lastCoolDownTime = 0;
-
 
     public GameLoop(Game game, SurfaceHolder surfaceHolder) {
         this.game = game;
@@ -70,10 +68,6 @@ public class GameLoop extends Thread {
                     updateCount++;
 
                     game.draw(canvas);
-
-                    // Fire Gun every 1 second
-                    // The lost function
-                    fireGun();
                 }
 
             } catch (IllegalArgumentException e){
@@ -106,10 +100,6 @@ public class GameLoop extends Thread {
                 updateCount++;
                 elapsedTime = System.currentTimeMillis() - startTime;
                 sleepTime = (long) (updateCount * UPS_PERIOD - elapsedTime);
-
-                // Fire Gun every 1 second
-                // The lost function
-                fireGun();
             }
 
             // Calculate average UPS and FPS
@@ -126,15 +116,6 @@ public class GameLoop extends Thread {
     }
     // End of run method
 
-    // Fire bullet each 1 Second
-    // Maybe little miss due to looping
-    public void fireGun(){
-        long time = System.currentTimeMillis();
-        if (time > lastCoolDownTime + game.coolDownSpeed) {
-            lastCoolDownTime = time;
-            game.fireBullet();
-        }
-    }
 
 
 

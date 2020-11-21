@@ -1,16 +1,43 @@
 package com.example.wpg3kelompok9;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+
 public class Button {
 
-    private int fireCircleCenterPositionX;
-    private int fireCircleCenterPositionY;
-    private int fireCircleRadius;
+    private int restartCirclePositionX;
+    private int restartCirclePositionY;
+    private int restartCircleRadius;
+    private double restartCenterToTouchDistance;
 
+    Paint paint;
 
-    public Button(int fireCenterPositionX, int fireCenterPositionY, int fireRadius) {
-        fireCircleCenterPositionX = fireCenterPositionX;
-        fireCircleCenterPositionY = fireCenterPositionY;
-        fireCircleRadius = fireRadius;
+    public Button(int reCircleX, int reCircleY, int reRadius){
+        restartCirclePositionX = reCircleX;
+        restartCirclePositionY = reCircleY;
+        restartCircleRadius = reRadius;
+
+        paint = new Paint();
+        paint.setColor(Color.argb(255,  0, 255, 0));
+    }
+
+    public boolean isPressed(double touchPositionX, double touchPositionY) {
+        // Fucking Calculate value with Pythagorian theorem
+        restartCenterToTouchDistance = Math.sqrt(
+                Math.pow(restartCirclePositionX - touchPositionX, 2) +
+                Math.pow(restartCirclePositionY - touchPositionY, 2)
+        );
+        return restartCenterToTouchDistance < restartCircleRadius;
+    }
+
+    public void drawRestartButton(Canvas canvas){
+
+        canvas.drawCircle(
+                restartCirclePositionX,
+                restartCirclePositionY,
+                restartCircleRadius,
+                paint);
     }
 
 }

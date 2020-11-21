@@ -10,6 +10,9 @@ import android.graphics.RectF;
 
 public class Player {
 
+    // Player live Point
+    private int livePoint = 3;
+
     // Player Sprite
     private Bitmap playerBitmap;
 
@@ -21,8 +24,8 @@ public class Player {
     private long lastFrameChangeTime = 0;
     private int frameCount   = 2;
     private int frameCountY  = 6;
-    private int frameWidth   = 150;
-    private int frameHeight  = 150;
+    private int frameWidth   = 255;
+    private int frameHeight  = 105;
     private Rect frameToDraw = new Rect(
             frameLoop + 0,
             currentSprite + 0,
@@ -49,14 +52,18 @@ public class Player {
     // IDK
     private double velocityX;
     private double velocityY;
-    private static final double SPEED_PIXEL_PER_SECOND = 400;
+    private static final double SPEED_PIXEL_PER_SECOND = 600;
     private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS;
 
     // The Counstructor
-    public Player(int positionX, int positionY, Bitmap bitmapSource, int screenX, int screenY) {
+    public Player(int positionX, int positionY, Bitmap bitmapSource, int screenX, int screenY, int frameX, int frameY) {
+        // Change frame size
+        frameWidth = frameX;
+        frameHeight = frameY;
+
         // Player start position
-        this.playerXPosition = positionX;
-        this.playerYPosition = positionY;
+        playerXPosition = positionX;
+        playerYPosition = positionY;
 
         // Initialize
         paint = new Paint();
@@ -89,7 +96,26 @@ public class Player {
         // Update Player positon
         velocityX = joystick.getActuatorX()*MAX_SPEED;
         velocityY = joystick.getActuatorY()*MAX_SPEED;
+
         // Don't make player move out from screen
+        screenCheck();
+
+        // Change player sprite based on Velocity
+        chageSprite();
+
+
+        // Implement player position
+        whereToDraw.set(playerXPosition,
+                        playerYPosition,
+                  playerXPosition + frameWidth,
+                playerYPosition + frameHeight);
+
+        // Get player Frame
+        frameToDraw.left = frameLoop * frameWidth;
+        frameToDraw.right = frameToDraw.left + frameWidth;
+    }
+
+    public void screenCheck(){
         if (playerXPosition < 5) {
             if (velocityX > 0) {
                 playerXPosition += velocityX;
@@ -117,8 +143,9 @@ public class Player {
         else{
             playerYPosition += velocityY;
         }
+    }
 
-        // Change player sprite based on Velocity
+    public void chageSprite(){
         // Mundur
         if (velocityX < 0 && velocityY > -1  && velocityY < 1){
             currentSprite = 0;
@@ -158,23 +185,6 @@ public class Player {
         // Changing sprite to draw
         frameToDraw.top = currentSprite * frameHeight;
         frameToDraw.bottom = frameToDraw.top + frameHeight;
-
-        // Implement player position
-        whereToDraw.set(playerXPosition,
-                        playerYPosition,
-                  playerXPosition + frameWidth,
-                playerYPosition + frameHeight);
-
-        // Get player Frame
-        frameToDraw.left = frameLoop * frameWidth;
-        frameToDraw.right = frameToDraw.left + frameWidth;
-
-
-    }
-
-    public void setPosition(float x, float y){
-        this.playerXPosition = x;
-        this.playerYPosition = y;
     }
 
     public RectF getPosition(){
@@ -209,5 +219,27 @@ public class Player {
         //the next frame on the spritesheet
         frameToDraw.left = frameLoop * frameWidth;
         frameToDraw.right = frameToDraw.left + frameWidth;
+    }
+
+    public void getHitByUFO(){
+        livePoint--;
+        if(livePoint <= 0){
+            // Player die
+
+        }
+    }
+
+    public int getLivePoint(){
+        return livePoint;
+    }
+
+    public void resetGame(){
+        livePoint = 3;
+        playerXPosition = screenSizeX/2;
+        playerYPosition = screenSizeY/2;
+    }
+
+    public RectF getRectF(){
+        return whereToDraw;
     }
 }

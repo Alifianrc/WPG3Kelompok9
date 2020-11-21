@@ -10,13 +10,13 @@ import android.graphics.RectF;
 public class Bullet {
 
     private Boolean isActive = false;
-    private int frameWidth = 15;
-    private int frameHeight = 15;
+    private int frameWidth = 50;
+    private int frameHeight = 20;
     private int frameCount = 1;
     private Paint paint;
     private float bulletXPosition;
     private float bulletYPosition;
-    private static final double SPEED_PIXEL_PER_SECOND = 700;
+    private static final double SPEED_PIXEL_PER_SECOND = 1400;
     private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS;
     private int screenSizeX;
     private int screenSizeY;
@@ -32,6 +32,16 @@ public class Bullet {
             0,
             frameWidth,
             frameHeight);
+
+    public Bullet(int frameX, int frameY, Bitmap bitmapSource){
+        // Change frame size
+        frameWidth = frameX;
+        frameHeight = frameY;
+
+        // Take the bullet Bitmap
+        bulletBitmap = bitmapSource;
+        bulletBitmap = Bitmap.createScaledBitmap(bulletBitmap, frameWidth * frameCount, frameHeight,false);
+    }
 
     public boolean getActive(){
         return isActive;
@@ -59,7 +69,7 @@ public class Bullet {
 
     // Self made constructor
     // Called if this object needed
-    public void instantiateBullet(RectF position, int screenX, int screenY, Bitmap bitmapSource) {
+    public void instantiateBullet(RectF position, int screenX, int screenY) {
         // Bullet spawn point
         bulletXPosition = position.left;
         bulletYPosition = position.top;
@@ -77,16 +87,16 @@ public class Bullet {
         screenSizeX = screenX;
         screenSizeY = screenY;
 
-        // Take the bullet Bitmap
-        bulletBitmap = bitmapSource;
-        bulletBitmap = Bitmap.createScaledBitmap(bulletBitmap, frameWidth * frameCount, frameHeight,false);
-
         // Just some paint
         paint = new Paint();
         paint.setColor(Color.argb(255, 255, 255, 255));
     }
 
-    public void setAvtive(boolean set){
-        isActive = set;
+    public void setActive(boolean a){
+        isActive = false;
+    }
+
+    public RectF getRectF(){
+        return whereToDraw;
     }
 }
