@@ -515,7 +515,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         if(time > lastPowerUpCoolDownSpeed + spawnPowerUpCoolDownSpeed){
             lastPowerUpCoolDownSpeed = time;
             int randomTemp = new Random().nextInt(5);
-            randomTemp = 2;
+
             if(randomTemp == 2){
                 // Spawn Gatling
                 int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
