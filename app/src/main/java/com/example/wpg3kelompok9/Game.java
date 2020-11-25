@@ -33,16 +33,37 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int bulletCount = 0;
     public static int fireCoolDownSpeed = 250; // In milisecond
     private long lastFireCoolDownTime = -3;
-    private Button button;
+    private Button Restartbutton;
     private int textSize;
     private int textPositionX;
     private int textPositionY;
     private Enemy[] enemy;
     private int enemyCount = 20;
-    Bitmap bitmapEnemy;
+    private Bitmap bitmapEnemy;
     private int spawnEnemyCoolDownSpeed = 2000;
     private long lastEnemyCoolDownSpeed = 0;
     private int enemyAliveCount = 0;
+    private Mothership mothership;
+    private Bitmap bitmapMothership;
+    private Meteor[] meteor;
+    private Bitmap bitmapMeteor;
+    private int meteorValue = 20;
+    private long lastMeteorCoolDownSpeed = 0;
+    private int spawnMeteorCoolDownSpeed = 3000;
+    private int meteorActiveCount = 0;
+    private PowerUp[] gatling;
+    private Bitmap bitmapGatling;
+    private int gatlingValue = 20;
+    private int gatlingCount = 0;
+    private boolean gatlingIsActive = false;
+    public  int GatlingFireCoolDownTime = 5000; // In milisecond
+    private long LastGatlingCoolDownTime = 0;
+    private PowerUp[] healing;
+    private Bitmap bitmapHealing;
+    private int healingValue = 20;
+    private int healingCount = 0;
+    private long lastPowerUpCoolDownSpeed = 0;
+    private int spawnPowerUpCoolDownSpeed = 3000;
 
     // Public score for easy scoring
     public static int score = 0;
@@ -60,7 +81,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                     joystick.setIsPressed(true);
                 }
 
-                if(button.isPressed((double) event.getX(), (double) event.getY()) && gameIsOver){
+                if(Restartbutton.isPressed((double) event.getX(), (double) event.getY()) && gameIsOver){
                     resetTheGame();
                 }
 
@@ -102,6 +123,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             bitmapPlayer = BitmapFactory.decodeResource(this.getResources(), R.drawable.sprite_pesawat_225x105);
             bitmapBullet = BitmapFactory.decodeResource(this.getResources(), R.drawable.peluru_50x20);
             bitmapEnemy = BitmapFactory.decodeResource(this.getResources(), R.drawable.ufo_150x75);
+            bitmapMothership = BitmapFactory.decodeResource(this.getResources(), R.drawable.mothership_500x230);
+            bitmapMeteor = BitmapFactory.decodeResource(this.getResources(), R.drawable.asteroid_60x60);
+            bitmapGatling = BitmapFactory.decodeResource(this.getResources(), R.drawable.gatling_50x50);
+            bitmapHealing = BitmapFactory.decodeResource(this.getResources(), R.drawable.healing_50x50);
 
             // Initialize player
             player = new Player(screenX/2,screenY/2, bitmapPlayer, screenSizeX, screenSizeY, 225, 105);
@@ -112,10 +137,31 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 enemy[i] = new Enemy(screenSizeX,screenSizeY,150,75,bitmapEnemy);
             }
 
-            // Bullet
+            // Initialize Bullet
             bullet = new Bullet[bulletValue];
             for(int i = 0; i < bulletValue; i++){
                 bullet[i] = new Bullet(50, 20, bitmapBullet);
+            }
+
+            // Initialize Mothership
+            mothership = new Mothership(10,screenY/2,bitmapMothership,screenSizeX,screenSizeY,500,230);
+
+            // Initialize Meteor
+            meteor = new Meteor[meteorValue];
+            for(int i = 0; i < meteorValue; i++){
+                meteor[i] = new Meteor(bitmapMeteor,screenSizeX,screenSizeY,60,60);
+            }
+
+            // Initialize Gatling
+            gatling = new PowerUp[gatlingValue];
+            for(int i = 0; i < gatlingValue; i++){
+                gatling[i] = new PowerUp(screenSizeX,screenSizeY,50,50,bitmapGatling);
+            }
+
+            // Initialize Healing
+            healing = new PowerUp[healingValue];
+            for(int i = 0; i < healingValue; i++){
+                healing[i] = new PowerUp(screenSizeX,screenSizeY,50,50,bitmapHealing);
             }
         }
         // If mobile screen size is less than 1920x1080 pixel
@@ -123,6 +169,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             bitmapPlayer = BitmapFactory.decodeResource(this.getResources(), R.drawable.sprite_pesawat_150x70);
             bitmapBullet = BitmapFactory.decodeResource(this.getResources(), R.drawable.peluru_34x14_pixel);
             bitmapEnemy = BitmapFactory.decodeResource(this.getResources(), R.drawable.ufo_100x50);
+            bitmapMothership = BitmapFactory.decodeResource(this.getResources(), R.drawable.mothership_333x153);
+            bitmapMeteor = BitmapFactory.decodeResource(this.getResources(), R.drawable.asteroid_40x40);
+            bitmapGatling = BitmapFactory.decodeResource(this.getResources(), R.drawable.gatling_33x33);
+            bitmapHealing = BitmapFactory.decodeResource(this.getResources(), R.drawable.gatling_33x33);
 
             // Initialize player
             player = new Player(screenX/2,screenY/2, bitmapPlayer, screenSizeX, screenSizeY, 150,70);
@@ -138,6 +188,27 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             for(int i = 0; i < bulletValue; i++){
                 bullet[i] = new Bullet(34, 14, bitmapBullet);
             }
+
+            // Initialize Mothership
+            mothership = new Mothership(10,screenY/2,bitmapMothership,screenSizeX,screenSizeY,333,153);
+
+            // Initialize Meteor
+            meteor = new Meteor[meteorValue];
+            for(int i = 0; i < meteorValue; i++){
+                meteor[i] = new Meteor(bitmapMeteor,screenSizeX,screenSizeY,40,40);
+            }
+
+            // Initialize Gatling
+            gatling = new PowerUp[gatlingValue];
+            for(int i = 0; i < gatlingValue; i++){
+                gatling[i] = new PowerUp(screenSizeX,screenSizeY,33,33,bitmapGatling);
+            }
+
+            // Initialize Healing
+            healing = new PowerUp[healingValue];
+            for(int i = 0; i < healingValue; i++){
+                healing[i] = new PowerUp(screenSizeX,screenSizeY,33,33,bitmapHealing);
+            }
         }
 
         // Initialize Joystick
@@ -147,7 +218,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
 
         // Button
-        button = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8);
+        Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 0, 255, 0);
 
         // Set text size
         textSize = screenY * 5/108;
@@ -159,17 +230,18 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        // Mulai looping game disini
         gameLoop.startLoop();
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        // Liat tutoral akhirnya nggak kepakek
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        // Liat tutoral akhirnya nggak kepakek
     }
 
     @Override
@@ -185,9 +257,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
+        mothership.draw(canvas);
         player.draw(canvas);
         joystick.draw(canvas);
-
 
         // Looping to draw activated bullet
         for(int i = 0; i < bulletValue; i++){
@@ -196,9 +268,31 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
+        // Looping to draw activated meteor
+        for(int i = 0; i < meteorValue; i++){
+            if(meteor[i].getActive()){
+                meteor[i].draw(canvas);
+            }
+        }
+
+        // Looping to draw activated gatling
+        for(int i = 0; i < gatlingValue; i++){
+            if(gatling[i].getActive()){
+                gatling[i].draw(canvas);
+            }
+        }
+
+        // Looping to draw activated healing
+        for(int i = 0; i < healingValue; i++){
+            if(healing[i].getActive()){
+                healing[i].draw(canvas);
+            }
+        }
+
         // UI
         drawScore(canvas);
         drawPlayerLivePoint(canvas);
+        drawMothershipLivePoint(canvas);
 
         // Only for Debugging
         debugging(canvas);
@@ -207,7 +301,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // Draw Game Over Panel
         if(gameIsOver){
             drawGameIsOver(canvas);
-            button.drawRestartButton(canvas);
+            Restartbutton.drawRestartButton(canvas);
         }
     }
 
@@ -216,8 +310,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("Bullet : " + bulletCount,textPositionX,textPositionY*3,paint);
-        canvas.drawText("Enemy  : " + enemyAliveCount,textPositionX,textPositionY*4,paint);
+        canvas.drawText("Bullet  : " + bulletCount,textPositionX*18,textPositionY,paint);
+        canvas.drawText("Enemy   : " + enemyAliveCount,textPositionX*18,textPositionY*2,paint);
+        canvas.drawText("Meteor  : " + meteorActiveCount,textPositionX*18,textPositionY*3,paint);
+        canvas.drawText("Gatling : " + gatlingCount,textPositionX*18,textPositionY*4,paint);
+        canvas.drawText("Healing : " + healingCount,textPositionX*18,textPositionY*5,paint);
         drawScreenSize(canvas);
     }
 
@@ -226,7 +323,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("UPS : " + averageUPS,textPositionX,textPositionY,paint);
+        canvas.drawText("UPS : " + averageUPS,textPositionX*13,textPositionY,paint);
     }
 
     public void drawFPS(Canvas canvas) {
@@ -234,7 +331,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("FPS : " + averageFPS,textPositionX,textPositionY*2,paint);
+        canvas.drawText("FPS : " + averageFPS,textPositionX*13,textPositionY*2,paint);
     }
 
     public void drawScreenSize(Canvas canvas){
@@ -249,14 +346,21 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("Score : " + score,textPositionX*13,textPositionY,paint);
+        canvas.drawText("Score : " + score,textPositionX,textPositionY,paint);
     }
 
     public void drawPlayerLivePoint(Canvas canvas){
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("Live : " + player.getLivePoint(),textPositionX*13,textPositionY*2,paint);
+        canvas.drawText("Player Live : " + player.getLivePoint(),textPositionX,textPositionY*2,paint);
+    }
+
+    public void drawMothershipLivePoint(Canvas canvas){
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 255));
+        paint.setTextSize(textSize);
+        canvas.drawText("Mothership Live : " + mothership.getLive(),textPositionX,textPositionY*3,paint);
     }
 
     public void drawGameIsOver(Canvas canvas){
@@ -275,6 +379,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             player.update(joystick);
             fireBullet();
             spawnEnemy();
+            spawnMeteor();
+            spawnPowerUp();
+            mothership.update();
 
             //Looping for enemy
             for(int i = 0; i < enemyCount; i++){
@@ -284,18 +391,38 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             }
 
             // Looping for update bullet
-            // When bullet is Active
             for(int i = 0; i < bulletValue; i++){
                 if(bullet[i].getActive()){
                     bullet[i].update();
                 }
             }
 
+            // Looping for update meteor
+            for(int i = 0; i < meteorValue; i++){
+                if(meteor[i].getActive()){
+                    meteor[i].update();
+                }
+            }
+
+            // Looping for update gatling
+            for(int i = 0; i < gatlingValue; i++){
+                if(gatling[i].getActive()){
+                    gatling[i].update();
+                }
+            }
+
+            // Looping for update healing
+            for(int i = 0; i < healingValue; i++){
+                if(healing[i].getActive()){
+                    healing[i].update();
+                }
+            }
+
             // Collision Check
             collsionCheck();
 
-            // Player Live Point Check
-            if(player.getLivePoint() <= 0){
+            // Live Point Check
+            if(player.getLivePoint() <= 0 || mothership.getLive() <= 0){
                 gameIsOver = true;
             }
         }
@@ -305,13 +432,24 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public void resetTheGame(){
         score = 0;
         player.resetGame();
+        mothership.resetGame();
         gameIsOver = false;
     }
 
     // This function is for Instantiate bullet
     public void fireBullet(){
         long time = System.currentTimeMillis();
-        if (time > lastFireCoolDownTime + fireCoolDownSpeed) {
+        int coolDownTemp;
+        if(gatlingIsActive){
+            coolDownTemp = fireCoolDownSpeed/5;
+            if(time > LastGatlingCoolDownTime + GatlingFireCoolDownTime){
+                gatlingIsActive = false;
+            }
+        }
+        else{
+            coolDownTemp = fireCoolDownSpeed;
+        }
+        if (time > lastFireCoolDownTime + coolDownTemp) {
             lastFireCoolDownTime = time;
             bulletCount++;
             if(bulletCount >= bulletValue){
@@ -339,6 +477,72 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void spawnMeteor(){
+        long time = System.currentTimeMillis();
+        boolean meteorCreated = false;
+        if(time > lastMeteorCoolDownSpeed + spawnMeteorCoolDownSpeed){
+            // Instantiate Meteor
+            int randomSpawn = new Random().nextInt(5);
+
+            if(randomSpawn == 0){
+                int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
+                meteor[meteorActiveCount].instantiateMeteor( screenSizeX + 5, randomY);
+                meteorCreated = true;
+            }
+            else if(randomSpawn == 1){
+                int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
+                meteor[meteorActiveCount].instantiateMeteor( randomX + 0, 0-5);
+                meteorCreated = true;
+            }
+            else if(randomSpawn == 2){
+                int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
+                meteor[meteorActiveCount].instantiateMeteor( randomX + 0, screenSizeY + 5);
+                meteorCreated = true;
+            }
+
+            if(meteorCreated){
+                meteorActiveCount++;
+                if(meteorActiveCount >= meteorValue){
+                    meteorActiveCount = 0;
+                }
+            }
+            lastMeteorCoolDownSpeed = time;
+        }
+    }
+
+    public void spawnPowerUp(){
+        long time = System.currentTimeMillis();
+        if(time > lastPowerUpCoolDownSpeed + spawnPowerUpCoolDownSpeed){
+            lastPowerUpCoolDownSpeed = time;
+            int randomTemp = new Random().nextInt(5);
+            randomTemp = 2;
+            if(randomTemp == 2){
+                // Spawn Gatling
+                int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
+                gatling[gatlingCount].instantiatePowerUp(screenSizeX + 5, randomY + 0);
+
+                gatlingCount++;
+                if(gatlingCount >= gatlingValue){
+                    gatlingCount = 0;
+                }
+            }
+            else if(randomTemp == 3){
+                // Spawn Healing
+                int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
+                healing[healingCount].instantiatePowerUp(screenSizeX + 5, randomY + 0);
+
+                healingCount++;
+                if(healingCount >= healingValue){
+                    healingCount = 0;
+                }
+            }
+        }
+    }
+
+    public void levelUp(){
+        // Increasing level by Play Time
+    }
+
     // This Function is for Checking any collision
     public void collsionCheck(){
 
@@ -363,5 +567,68 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
         }
+
+        // Check if UFO hit Mothership
+        for(int i = 0; i < enemyCount; i++){
+            if(enemy[i].getActive()){
+                if(RectF.intersects(enemy[i].getRectF(), mothership.getRectF())){
+                    enemy[i].getHitByMothership();
+                    mothership.getHitByUFO();
+                }
+            }
+        }
+
+        // Check if Meteor hit player
+        for(int i = 0; i < meteorActiveCount; i++){
+            if(meteor[i].getActive()){
+                if(RectF.intersects(meteor[i].getRectF(), player.getRectF())){
+                    meteor[i].getHit();
+                    player.getHitByUFO();
+                }
+            }
+        }
+
+        // Check if Meteor hit Mothership
+        for(int i = 0; i < meteorActiveCount; i++){
+            if(meteor[i].getActive()){
+                if(RectF.intersects(meteor[i].getRectF(), mothership.getRectF())){
+                    meteor[i].getHit();
+                }
+            }
+        }
+
+        // Check if Player Bullet hit Meteor
+        for(int i = 0; i < bulletValue; i++){
+            for(int j = 0; j < meteorActiveCount; j++){
+                if(bullet[i].getActive() && meteor[j].getActive()){
+                    if(RectF.intersects(bullet[i].getRectF(), meteor[j].getRectF())){
+                        bullet[i].setActive(false);
+                    }
+                }
+            }
+        }
+
+        // Check if Player Get Gatling PowerUp
+        for(int i = 0; i < gatlingValue; i++){
+            if(gatling[i].getActive()){
+                if(RectF.intersects(gatling[i].getRectF(), player.getRectF())){
+                    gatlingIsActive = true;
+                    LastGatlingCoolDownTime = System.currentTimeMillis();
+                    gatling[i].getHit();
+                }
+            }
+        }
+
+        // Check if Player Get Healing PowerUp
+        for(int i = 0; i < healingValue; i++){
+            if(healing[i].getActive()){
+                if(RectF.intersects(healing[i].getRectF(), player.getRectF())){
+                    player.addLive();
+                    healing[i].getHit();
+                }
+            }
+        }
     }
+    // Tail Function
 }
+// End off class

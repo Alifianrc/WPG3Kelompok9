@@ -22,7 +22,7 @@ public class Enemy {
             frameWidth + frameLoop,
             frameHeight + 0);
 
-    // Player position
+    // Enemy position
     private float ufoXPosition;
     private float ufoYPosition;
     // Left, Top, Right, Bottom
@@ -166,6 +166,11 @@ public class Enemy {
     public void getHitByPlayer(){
         isActive = false;
         Game.score += 5;
+        resetUFO();
+    }
+
+    public void getHitByMothership(){
+        isActive = false;
         resetUFO();
     }
 

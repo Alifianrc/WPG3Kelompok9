@@ -13,13 +13,13 @@ public class Button {
 
     Paint paint;
 
-    public Button(int reCircleX, int reCircleY, int reRadius){
+    public Button(int reCircleX, int reCircleY, int reRadius, int r, int g, int b){
         restartCirclePositionX = reCircleX;
         restartCirclePositionY = reCircleY;
         restartCircleRadius = reRadius;
 
         paint = new Paint();
-        paint.setColor(Color.argb(255,  0, 255, 0));
+        paint.setColor(Color.argb(255,  r + 0, g + 0, b + 0));
     }
 
     public boolean isPressed(double touchPositionX, double touchPositionY) {

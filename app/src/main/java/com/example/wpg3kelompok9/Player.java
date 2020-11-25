@@ -223,10 +223,10 @@ public class Player {
 
     public void getHitByUFO(){
         livePoint--;
-        if(livePoint <= 0){
-            // Player die
+    }
 
-        }
+    public void addLive(){
+        livePoint++;
     }
 
     public int getLivePoint(){
