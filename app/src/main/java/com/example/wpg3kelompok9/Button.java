@@ -12,7 +12,7 @@ public class Button {
     private double restartCenterToTouchDistance;
 
     Paint paint;
-
+    
     public Button(int reCircleX, int reCircleY, int reRadius, int r, int g, int b){
         restartCirclePositionX = reCircleX;
         restartCirclePositionY = reCircleY;
@@ -32,12 +32,11 @@ public class Button {
     }
 
     public void drawRestartButton(Canvas canvas){
-
         canvas.drawCircle(
                 restartCirclePositionX,
                 restartCirclePositionY,
                 restartCircleRadius,
-                paint);
+                paint
+        );
     }
-
 }

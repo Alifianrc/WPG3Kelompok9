@@ -177,5 +177,6 @@ public class Enemy {
     public void resetUFO(){
         // Reset Enemy here
         isStopped = false;
+        isActive = false;
     }
 }

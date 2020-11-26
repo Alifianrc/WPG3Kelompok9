@@ -1,19 +1,27 @@
 package com.example.wpg3kelompok9;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.location.GnssAntennaInfo;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -21,36 +29,56 @@ import java.util.Random;
  * updating all states and render all object to the screen
  */
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
+
+    // The Player
     private final Player player;
+    private Bitmap bitmapPlayer;
+
+    // Looping Game Class
     private GameLoop gameLoop;
+
+    // Save screen Size
     private int screenSizeX;
     private int screenSizeY;
-    private Bitmap bitmapPlayer;
-    private Bitmap bitmapBullet;
+
+    // The Joystick
     private Joystick joystick;
-    private static final int bulletValue = 50;
+
+    // Player Bullet + Shoot
     private Bullet[] bullet;
+    private Bitmap bitmapBullet;
+    private static final int bulletValue = 50;
     private int bulletCount = 0;
     public static int fireCoolDownSpeed = 250; // In milisecond
     private long lastFireCoolDownTime = -3;
-    private Button Restartbutton;
+
+    // Ui default
     private int textSize;
     private int textPositionX;
     private int textPositionY;
+
+    // Enemy
     private Enemy[] enemy;
     private int enemyCount = 20;
     private Bitmap bitmapEnemy;
     private int spawnEnemyCoolDownSpeed = 2000;
     private long lastEnemyCoolDownSpeed = 0;
     private int enemyAliveCount = 0;
+
+    // Mothership
     private Mothership mothership;
     private Bitmap bitmapMothership;
+
+    // For Meteor
     private Meteor[] meteor;
     private Bitmap bitmapMeteor;
     private int meteorValue = 20;
     private long lastMeteorCoolDownSpeed = 0;
     private int spawnMeteorCoolDownSpeed = 3000;
     private int meteorActiveCount = 0;
+
+    // The powerUp
+    // Gatling
     private PowerUp[] gatling;
     private Bitmap bitmapGatling;
     private int gatlingValue = 20;
@@ -58,6 +86,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private boolean gatlingIsActive = false;
     public  int GatlingFireCoolDownTime = 5000; // In milisecond
     private long LastGatlingCoolDownTime = 0;
+    // Healing
     private PowerUp[] healing;
     private Bitmap bitmapHealing;
     private int healingValue = 20;
@@ -65,15 +94,40 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private long lastPowerUpCoolDownSpeed = 0;
     private int spawnPowerUpCoolDownSpeed = 3000;
 
+    // For sound FX
+    SoundPool soundPool;
+    int destroyedSoundID = -1;
+    int getItemSoundID = -1;
+    int hitSoundID = -1;
+    int shootID = -1;
+    int soundtrackID = -1;
+    boolean soundIsLoaded = false;
+    boolean soundIsLooping = false;
+
+    SoundPool.OnLoadCompleteListener soundPoolOnLoadCompleteListener = new SoundPool.OnLoadCompleteListener(){
+        @Override
+        public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+            if(status == 0){
+                soundIsLoaded = true;
+            }
+        }
+    };
+
     // Public score for easy scoring
     public static int score = 0;
 
     // Scene Controller
     private boolean gameIsOver = false;
+    private boolean gameIsStarted = false;
+
+    // The Button
+    private Button Restartbutton;
+    private Button StartButton;
+
+    // End off first Declaration
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         // Handle Touch Event action
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
@@ -83,6 +137,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
                 if(Restartbutton.isPressed((double) event.getX(), (double) event.getY()) && gameIsOver){
                     resetTheGame();
+                }
+
+                if(StartButton.isPressed((double) event.getX(), (double) event.getY()) && !gameIsStarted){
+                   gameIsStarted = true;
                 }
 
                 return true;
@@ -96,11 +154,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 joystick.resetActuator();
                 return true;
         }
-
-
         return super.onTouchEvent(event);
     }
-
 
     // The Constructor
     public Game(Context context, int screenX, int screenY) {
@@ -117,7 +172,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         screenSizeX = screenX;
         screenSizeY = screenY;
 
-        // Load Bitmap
+        // Load All Bitmap
         // If mobile screen size is 1920x1080 pixel or more
         if(screenSizeX >= 1920 && screenSizeY >= 1080){
             bitmapPlayer = BitmapFactory.decodeResource(this.getResources(), R.drawable.sprite_pesawat_225x105);
@@ -215,23 +270,57 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         joystick = new Joystick(screenSizeX/8, screenSizeY* 10/13, screenSizeY/8, screenSizeY/16);
 
         // I don't know what is this for
+        // This is from Joystick Tutorial
         setFocusable(true);
 
         // Button
-        Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 0, 255, 0);
+        Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 255, 0, 255);
+        StartButton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 0, 255, 0);
 
-        // Set text size
+        // Set default text size and position
         textSize = screenY * 5/108;
         textPositionX = screenSizeX * 10/213; // value = 100 in 2130 pixel screenX
         textPositionY = screenSizeY * 5/54; // value = 100 in 1080 pixel screenY
+
+        // Load Sound
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        try{
+            // Create objects of the 2 required classes
+            AssetManager assetManager = context.getAssets();
+            AssetFileDescriptor descriptor;
+
+            // Load our fx in memory ready for use
+            descriptor = assetManager.openFd("destroyed.ogg");
+            destroyedSoundID = soundPool.load(descriptor, 0);
+
+            descriptor = assetManager.openFd("getitem.ogg");
+            getItemSoundID = soundPool.load(descriptor, 0);
+
+            descriptor = assetManager.openFd("hit.ogg");
+            hitSoundID = soundPool.load(descriptor, 0);
+
+            descriptor = assetManager.openFd("shoot.ogg");
+            shootID = soundPool.load(descriptor, 0);
+
+            descriptor = assetManager.openFd("soundtrack.ogg");
+            soundPool.setOnLoadCompleteListener(soundPoolOnLoadCompleteListener);
+            soundtrackID = soundPool.load(descriptor, 0);
+
+        } catch (IOException e) {
+            // Print an error message to the console
+            Log.e("error", "failed to load sound files");
+        }
     }
-
-
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         // Mulai looping game disini
         gameLoop.startLoop();
+
+        if(!soundIsLooping && soundIsLoaded){
+            soundPool.play(soundtrackID,1,1,0,0,1);
+            soundIsLooping = true;
+        }
     }
 
     @Override
@@ -244,67 +333,76 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // Liat tutoral akhirnya nggak kepakek
     }
 
+    // Draw everything in here
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         drawUPS(canvas);
         drawFPS(canvas);
 
-        //Looping for enemy
-        for(int i = 0; i < enemyCount; i++){
-            if(enemy[i].getActive()){
-                enemy[i].draw(canvas);
+        if(gameIsStarted){
+            //Looping for enemy
+            for(int i = 0; i < enemyCount; i++){
+                if(enemy[i].getActive()){
+                    enemy[i].draw(canvas);
+                }
+            }
+
+            mothership.draw(canvas);
+            player.draw(canvas);
+            joystick.draw(canvas);
+
+            // Looping to draw activated bullet
+            for(int i = 0; i < bulletValue; i++){
+                if(bullet[i].getActive()){
+                    bullet[i].draw(canvas);
+                }
+            }
+
+            // Looping to draw activated meteor
+            for(int i = 0; i < meteorValue; i++){
+                if(meteor[i].getActive()){
+                    meteor[i].draw(canvas);
+                }
+            }
+
+            // Looping to draw activated gatling
+            for(int i = 0; i < gatlingValue; i++){
+                if(gatling[i].getActive()){
+                    gatling[i].draw(canvas);
+                }
+            }
+
+            // Looping to draw activated healing
+            for(int i = 0; i < healingValue; i++){
+                if(healing[i].getActive()){
+                    healing[i].draw(canvas);
+                }
+            }
+
+            // UI
+            drawScore(canvas);
+            drawPlayerLivePoint(canvas);
+            drawMothershipLivePoint(canvas);
+
+            // Only for Debugging
+            debugging(canvas);
+
+            // if Game is Over
+            // Draw Game Over Panel
+            if(gameIsOver){
+                drawGameIsOver(canvas);
+                Restartbutton.drawRestartButton(canvas);
             }
         }
 
-        mothership.draw(canvas);
-        player.draw(canvas);
-        joystick.draw(canvas);
-
-        // Looping to draw activated bullet
-        for(int i = 0; i < bulletValue; i++){
-            if(bullet[i].getActive()){
-                bullet[i].draw(canvas);
-            }
-        }
-
-        // Looping to draw activated meteor
-        for(int i = 0; i < meteorValue; i++){
-            if(meteor[i].getActive()){
-                meteor[i].draw(canvas);
-            }
-        }
-
-        // Looping to draw activated gatling
-        for(int i = 0; i < gatlingValue; i++){
-            if(gatling[i].getActive()){
-                gatling[i].draw(canvas);
-            }
-        }
-
-        // Looping to draw activated healing
-        for(int i = 0; i < healingValue; i++){
-            if(healing[i].getActive()){
-                healing[i].draw(canvas);
-            }
-        }
-
-        // UI
-        drawScore(canvas);
-        drawPlayerLivePoint(canvas);
-        drawMothershipLivePoint(canvas);
-
-        // Only for Debugging
-        debugging(canvas);
-
-        // if Game is Over
-        // Draw Game Over Panel
-        if(gameIsOver){
-            drawGameIsOver(canvas);
-            Restartbutton.drawRestartButton(canvas);
+        else if(!gameIsStarted){
+            drawGameIsStarted(canvas);
+            StartButton.drawRestartButton(canvas);
         }
     }
 
+    // Just for debugging
     public void debugging(Canvas canvas){
         // Debugging
         Paint paint = new Paint();
@@ -342,6 +440,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Screen Size Y : " + screenSizeY,textPositionX*6,textPositionY*2,paint);
     }
 
+    // Ui
     public void drawScore(Canvas canvas){
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
@@ -370,9 +469,17 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Game Over",screenSizeX/6,screenSizeY/2,paint);
     }
 
+    public void drawGameIsStarted(Canvas canvas){
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 255));
+        paint.setTextSize(textSize * 3);
+        canvas.drawText("Push The Button to Start",screenSizeX/10,screenSizeY/2,paint);
+    }
+
+    // Updating Game in here
     public void update() {
         // Only update is game is not over
-        if(!gameIsOver){
+        if(!gameIsOver && gameIsStarted){
 
             //Update game state
             joystick.update();
@@ -428,11 +535,37 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    // This function is for reset game
+    // This function is for reset the game
     public void resetTheGame(){
         score = 0;
         player.resetGame();
         mothership.resetGame();
+
+        // Set several object count to 0
+        bulletCount = 0;
+        enemyAliveCount = 0;
+        meteorActiveCount = 0;
+        healingCount = 0;
+        gatlingCount = 0;
+
+        // Make them InActive
+        for(int i = 0; i < bulletValue; i++){
+            bullet[i].setActive(false);
+        }
+        for(int i = 0; i < enemyCount; i++){
+            enemy[i].resetUFO();
+        }
+        for(int i = 0; i < meteorActiveCount; i++){
+            meteor[i].getHit();
+        }
+        for(int i = 0; i < healingValue; i++){
+            healing[i].getHit();
+        }
+        for(int i = 0; i < gatlingValue; i++){
+            gatling[i].getHit();
+        }
+
+        // Resume The Game
         gameIsOver = false;
     }
 
@@ -458,10 +591,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
             // Instantiate Bullet
             bullet[bulletCount].instantiateBullet(player.getPosition(), screenSizeX, screenSizeY);
+            soundPool.play(shootID,1,1,0,0,1);
         }
     }
 
-    // This fundtion is for spawning enemy
+    // This function is for spawning enemy
     public void spawnEnemy(){
         long time = System.currentTimeMillis();
         if(time > lastEnemyCoolDownSpeed + spawnEnemyCoolDownSpeed){
@@ -477,6 +611,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    // This function is for spawning meteor
     public void spawnMeteor(){
         long time = System.currentTimeMillis();
         boolean meteorCreated = false;
@@ -510,11 +645,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    // This function is for spawning PowerUp
     public void spawnPowerUp(){
         long time = System.currentTimeMillis();
         if(time > lastPowerUpCoolDownSpeed + spawnPowerUpCoolDownSpeed){
             lastPowerUpCoolDownSpeed = time;
-            int randomTemp = new Random().nextInt(5);
+            int randomTemp = new Random().nextInt(6);
 
             if(randomTemp == 2){
                 // Spawn Gatling
@@ -539,8 +675,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    // Increasing level by Play Time
     public void levelUp(){
-        // Increasing level by Play Time
+
     }
 
     // This Function is for Checking any collision
@@ -551,8 +688,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             for(int j = 0; j < enemyCount; j++){
                 if(bullet[i].getActive() && enemy[j].getActive()){
                     if(RectF.intersects(bullet[i].getRectF(), enemy[j].getRectF())){
+                        soundPool.play(hitSoundID,2,2,0,0,1);
                         bullet[i].setActive(false);
                         enemy[j].getHitByBullet();
+                        if(!enemy[j].getActive()) {
+                            soundPool.play(destroyedSoundID, 1, 1, 0, 0, 1);
+                        }
                     }
                 }
             }
@@ -564,6 +705,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 if(RectF.intersects(enemy[i].getRectF(), player.getRectF())){
                     enemy[i].getHitByPlayer();
                     player.getHitByUFO();
+                    if(!enemy[i].getActive()){
+                        soundPool.play(destroyedSoundID,1,1,0,0,1);
+                    }
                 }
             }
         }
@@ -574,6 +718,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 if(RectF.intersects(enemy[i].getRectF(), mothership.getRectF())){
                     enemy[i].getHitByMothership();
                     mothership.getHitByUFO();
+                    soundPool.play(destroyedSoundID,1,1,0,0,1);
                 }
             }
         }
@@ -584,6 +729,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 if(RectF.intersects(meteor[i].getRectF(), player.getRectF())){
                     meteor[i].getHit();
                     player.getHitByUFO();
+                    if(player.getLivePoint() > 0){
+                        soundPool.play(hitSoundID,2,2,0,0,1);
+                    }else{
+                        soundPool.play(destroyedSoundID,1,1,0,0,1);
+                    }
                 }
             }
         }
@@ -593,6 +743,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             if(meteor[i].getActive()){
                 if(RectF.intersects(meteor[i].getRectF(), mothership.getRectF())){
                     meteor[i].getHit();
+                    soundPool.play(hitSoundID,2,2,0,0,1);
                 }
             }
         }
@@ -602,6 +753,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             for(int j = 0; j < meteorActiveCount; j++){
                 if(bullet[i].getActive() && meteor[j].getActive()){
                     if(RectF.intersects(bullet[i].getRectF(), meteor[j].getRectF())){
+                        soundPool.play(hitSoundID,1,1,0,0,1);
                         bullet[i].setActive(false);
                     }
                 }
@@ -612,6 +764,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         for(int i = 0; i < gatlingValue; i++){
             if(gatling[i].getActive()){
                 if(RectF.intersects(gatling[i].getRectF(), player.getRectF())){
+                    soundPool.play(getItemSoundID,1,1,0,0,1);
                     gatlingIsActive = true;
                     LastGatlingCoolDownTime = System.currentTimeMillis();
                     gatling[i].getHit();
@@ -623,6 +776,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         for(int i = 0; i < healingValue; i++){
             if(healing[i].getActive()){
                 if(RectF.intersects(healing[i].getRectF(), player.getRectF())){
+                    soundPool.play(getItemSoundID,1,1,0,0,1);
                     player.addLive();
                     healing[i].getHit();
                 }

@@ -23,18 +23,13 @@ public class GameLoop extends Thread {
     public GameLoop(Game game, SurfaceHolder surfaceHolder) {
         this.game = game;
         this.surfaceHolder = surfaceHolder;
-
     }
 
     public double getAverageUPS() {
-
-
         return averageUPS;
     }
 
     public double getAverageFPS() {
-
-
         return averageFPS;
     }
 
@@ -115,30 +110,4 @@ public class GameLoop extends Thread {
         }
     }
     // End of run method
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

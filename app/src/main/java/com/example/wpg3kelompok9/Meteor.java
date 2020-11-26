@@ -191,8 +191,6 @@ public class Meteor {
 
     }
 
-
-
     public void getCurrentFrame(){
         long time = System.currentTimeMillis();
         if ( time > lastFrameChangeTime + frameLengthInMilliseconds) {
