@@ -7,8 +7,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-public class Enemy {
+import java.util.Random;
 
+public class Enemy {
+    // ENemy image adn animation
     private Bitmap bitmapUFO;
     private int frameWidth   = 150;
     private int frameHeight  = 75;
@@ -22,7 +24,7 @@ public class Enemy {
             frameWidth + frameLoop,
             frameHeight + 0);
 
-    // Enemy position
+    // Enemy position and movement
     private float ufoXPosition;
     private float ufoYPosition;
     // Left, Top, Right, Bottom
@@ -48,6 +50,9 @@ public class Enemy {
 
     // Live point
     private int live = 3;
+
+    // Random movement
+    private int randomMovement = 0;
 
     // Constructor
     public Enemy(int screenX, int screenY, int frameX, int frameY, Bitmap bitmapSource){
@@ -95,23 +100,32 @@ public class Enemy {
 
     // Contain UFO Logic Movement
     public void getSpeed(){
-        if(ufoXPosition <= screenSizeX * 4/5 && !isStopped){
-            isStop = true;
-            isStopped = true;
-            lastStandByTime = System.currentTimeMillis();
-        }
+        // Enemy will Ramdomize movement pattern
+        if(randomMovement == 0){
+            // Add movement pattern here @Aas
 
-        if(isStop){
-            long time = System.currentTimeMillis();
-            if(time > lastStandByTime + standByTime){
-               isStop = false;
-               ufoXPosition += MAX_SPEED;
+        }
+        else{
+            // Stop at 4/5 screen position
+            if(ufoXPosition <= screenSizeX * 4/5 && !isStopped){
+                isStop = true;
+                isStopped = true;
+                lastStandByTime = System.currentTimeMillis();
+            }
+            // Then start walking again
+            if(isStop){
+                long time = System.currentTimeMillis();
+                if(time > lastStandByTime + standByTime){
+                    isStop = false;
+                    ufoXPosition += MAX_SPEED;
+                }
+            }
+            // Just walking
+            else if (!isStop){
+                ufoXPosition += MAX_SPEED;
             }
         }
 
-        else if (!isStop){
-            ufoXPosition += MAX_SPEED;
-        }
 
     }
 
@@ -144,6 +158,9 @@ public class Enemy {
                 ufoXPosition + frameWidth,
                 ufoYPosition + frameHeight
         );
+
+        // Randomize movement pattern here
+        randomMovement = new Random().nextInt(3); // This will generate number 0 to 2
     }
 
     public boolean getActive(){
@@ -178,5 +195,9 @@ public class Enemy {
         // Reset Enemy here
         isStopped = false;
         isActive = false;
+    }
+
+    public float  getXPosition(){
+        return ufoXPosition;
     }
 }
