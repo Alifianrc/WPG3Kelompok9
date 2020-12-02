@@ -64,6 +64,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int spawnEnemyCoolDownSpeed = 2000;
     private long lastEnemyCoolDownSpeed = 0;
     private int enemyAliveCount = 0;
+    private int enemySpawnValue = 3;
 
     // Mothership
     private Mothership mothership;
@@ -76,6 +77,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private long lastMeteorCoolDownSpeed = 0;
     private int spawnMeteorCoolDownSpeed = 3000;
     private int meteorActiveCount = 0;
+    private int meteorSpawnValue = 4;
 
     // The powerUp
     // Gatling
@@ -92,7 +94,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int healingValue = 20;
     private int healingCount = 0;
     private long lastPowerUpCoolDownSpeed = 0;
-    private int spawnPowerUpCoolDownSpeed = 3000;
+    private int spawnPowerUpCoolDownSpeed = 1000;
 
     // For sound FX
     SoundPool soundPool;
@@ -117,6 +119,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private long lastIncreasingLevelTime = 0;
     private int increasingLevelCooldownSpeed = 10000;
     private int currentLevel = 1;
+
+    // Background particle
+    Particle particle;
 
     // End off first Declaration
 
@@ -221,7 +226,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             bitmapMothership = BitmapFactory.decodeResource(this.getResources(), R.drawable.mothership_333x153);
             bitmapMeteor = BitmapFactory.decodeResource(this.getResources(), R.drawable.asteroid_40x40);
             bitmapGatling = BitmapFactory.decodeResource(this.getResources(), R.drawable.gatling_33x33);
-            bitmapHealing = BitmapFactory.decodeResource(this.getResources(), R.drawable.gatling_33x33);
+            bitmapHealing = BitmapFactory.decodeResource(this.getResources(), R.drawable.healing_33x33);
 
             // Initialize player
             player = new Player(screenX/2,screenY/2, bitmapPlayer, screenSizeX, screenSizeY, 150,70);
@@ -262,6 +267,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         // Initialize Joystick
         joystick = new Joystick(screenSizeX/8, screenSizeY* 10/13, screenSizeY/8, screenSizeY/16);
+
+        // Initialize particle
+        particle = new Particle(screenX, screenY);
 
         // I don't know what is this for
         // This is from Joystick Tutorial
@@ -325,6 +333,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+
+        // Draw Particle in background
+        particle.draw(canvas);
+
+        // Draw UPS and FPS
         drawUPS(canvas);
         drawFPS(canvas);
 
@@ -460,6 +473,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     // Updating Game in here
     public void update() {
+        // Particle will update before game started
+        if(!gameIsOver){
+            particle.update();
+        }
+
         // Only update is game is not over
         if(!gameIsOver && gameIsStarted){
 
@@ -556,13 +574,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // Reset Game Level
         resetLevel();
     }
-
+    // Make seperate methoc for resetting game level
     public void resetLevel(){
         spawnEnemyCoolDownSpeed = 2000;
         spawnMeteorCoolDownSpeed = 3000;
         spawnPowerUpCoolDownSpeed = 3000;
         increasingLevelCooldownSpeed = 10000;
         currentLevel = 1;
+        enemySpawnValue = 3;
+        meteorSpawnValue = 4;
     }
 
     // Increasing level by Play Time
@@ -575,12 +595,20 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             if(spawnEnemyCoolDownSpeed > 200){
                 spawnEnemyCoolDownSpeed -= 100;
             }
+            // Make more Enemy spawned
+            if(enemySpawnValue < 6){
+                enemySpawnValue++;
+            }
             // Make Meteor spawn quicker
             if(spawnMeteorCoolDownSpeed > 500){
                 spawnMeteorCoolDownSpeed -= 250;
             }
+            // Make more meteor spawned
+            if(meteorSpawnValue < 10){
+                meteorSpawnValue++;
+            }
             // Make Power Up spawn longer
-            if(spawnPowerUpCoolDownSpeed < 10000){
+            if(spawnPowerUpCoolDownSpeed < 3000){
                 spawnPowerUpCoolDownSpeed += 500;
             }
             // Make increasing level faster
@@ -621,7 +649,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public void spawnEnemy(){
         long time = System.currentTimeMillis();
         if(time > lastEnemyCoolDownSpeed + spawnEnemyCoolDownSpeed){
-            int randomEnemyValue = new Random().nextInt(3);
+            int randomEnemyValue = new Random().nextInt(enemySpawnValue) + 1;
             for(int i = 0; i< randomEnemyValue; i++) {
                 // Enemy loop count increase
                 enemyAliveCount++;
@@ -642,32 +670,34 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         long time = System.currentTimeMillis();
         boolean meteorCreated = false;
         if(time > lastMeteorCoolDownSpeed + spawnMeteorCoolDownSpeed){
-            // Instantiate Meteor
-            int randomSpawn = new Random().nextInt(5);
-
-            if(randomSpawn == 0){
-                int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
-                meteor[meteorActiveCount].instantiateMeteor( screenSizeX + 5, randomY);
-                meteorCreated = true;
-            }
-            else if(randomSpawn == 1){
-                int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
-                meteor[meteorActiveCount].instantiateMeteor( randomX + 0, 0-5);
-                meteorCreated = true;
-            }
-            else if(randomSpawn == 2){
-                int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
-                meteor[meteorActiveCount].instantiateMeteor( randomX + 0, screenSizeY + 5);
-                meteorCreated = true;
-            }
-
-            if(meteorCreated){
-                meteorActiveCount++;
-                if(meteorActiveCount >= meteorValue){
-                    meteorActiveCount = 0;
+            int meteorRandomValue = new Random().nextInt(meteorSpawnValue) + 1;
+            for(int i = 0; i < meteorRandomValue; i++){
+                // Randomize meteor spawn point
+                int randomSpawn = new Random().nextInt(5);
+                if(randomSpawn == 0){
+                    int randomY = new Random().nextInt(screenSizeY * 8/12) + (screenSizeY * 2/12);
+                    meteor[meteorActiveCount].instantiateMeteor( screenSizeX + 5, randomY);
+                    meteorCreated = true;
+                }
+                else if(randomSpawn == 1){
+                    int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
+                    meteor[meteorActiveCount].instantiateMeteor( randomX + 0, 0-5);
+                    meteorCreated = true;
+                }
+                else if(randomSpawn == 2){
+                    int randomX = new Random().nextInt(screenSizeX * 7/12) + (screenSizeX * 4/12);
+                    meteor[meteorActiveCount].instantiateMeteor( randomX + 0, screenSizeY + 5);
+                    meteorCreated = true;
+                }
+                // If randomize created meteor
+                if(meteorCreated){
+                    meteorActiveCount++;
+                    if(meteorActiveCount >= meteorValue){
+                        meteorActiveCount = 0;
+                    }
                 }
             }
-            lastMeteorCoolDownSpeed = time;
+            lastMeteorCoolDownSpeed = System.currentTimeMillis();
         }
     }
 
