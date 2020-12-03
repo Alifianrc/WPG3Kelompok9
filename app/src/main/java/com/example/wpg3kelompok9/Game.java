@@ -47,7 +47,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Player Bullet + Shoot
     private Bullet[] bullet;
     private Bitmap bitmapBullet;
-    private static final int bulletValue = 50;
+    private static final int bulletValue = 100;
     private int bulletCount = 0;
     public static int fireCoolDownSpeed = 250; // In milisecond
     private long lastFireCoolDownTime = -3;
@@ -59,7 +59,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     // Enemy
     private Enemy[] enemy;
-    private int enemyCount = 20;
+    private int enemyCount = 100;
     private Bitmap bitmapEnemy;
     private int spawnEnemyCoolDownSpeed = 2000;
     private long lastEnemyCoolDownSpeed = 0;
@@ -73,7 +73,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // For Meteor
     private Meteor[] meteor;
     private Bitmap bitmapMeteor;
-    private int meteorValue = 20;
+    private int meteorValue = 100;
     private long lastMeteorCoolDownSpeed = 0;
     private int spawnMeteorCoolDownSpeed = 3000;
     private int meteorActiveCount = 0;
@@ -83,7 +83,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Gatling
     private PowerUp[] gatling;
     private Bitmap bitmapGatling;
-    private int gatlingValue = 20;
+    private int gatlingValue = 50;
     private int gatlingCount = 0;
     private boolean gatlingIsActive = false;
     public  int GatlingFireCoolDownTime = 5000; // In milisecond
@@ -91,7 +91,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Healing
     private PowerUp[] healing;
     private Bitmap bitmapHealing;
-    private int healingValue = 20;
+    private int healingValue = 50;
     private int healingCount = 0;
     private long lastPowerUpCoolDownSpeed = 0;
     private int spawnPowerUpCoolDownSpeed = 1000;
@@ -558,7 +558,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         for(int i = 0; i < enemyCount; i++){
             enemy[i].resetUFO();
         }
-        for(int i = 0; i < meteorActiveCount; i++){
+        for(int i = 0; i < meteorValue; i++){
             meteor[i].getHit();
         }
         for(int i = 0; i < healingValue; i++){
@@ -576,6 +576,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
     // Make seperate methoc for resetting game level
     public void resetLevel(){
+        // Reset all of this value
         spawnEnemyCoolDownSpeed = 2000;
         spawnMeteorCoolDownSpeed = 3000;
         spawnPowerUpCoolDownSpeed = 3000;

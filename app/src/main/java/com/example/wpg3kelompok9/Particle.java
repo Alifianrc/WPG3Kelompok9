@@ -76,10 +76,9 @@ public class Particle {
         private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS * -1;
 
         // The tail of particle
-        private Rect[] particleTail;
-        private int particleTailSizeX = 5;
-        private int particleTailSizeY = 5;
-        private int particleTailValue = 10;
+        private Rect particleTail;
+        private int particleTailSizeX = 2;
+        private int particleTailSizeY = 2;
         private int adjustmentPositionX = particleSizeX + 1;
         private int adjustmentPositionY = particleSizeY / 2;
 
@@ -90,18 +89,43 @@ public class Particle {
         Paint paint;
 
         public ParticleObject(){
-            // Set color
+            // Resize particle based on screen size
+            particleSizeX = screenSizeX/192;
+            particleSizeY = screenSizeY/108;
+            particleTailSizeY = screenSizeY/540;
+
+            // Initialize color
             paint = new Paint();
             paint.setColor(Color.argb(255,  255, 255, 255));
+        }
 
-            particleTail = new Rect[particleTailValue];
-            for(int i = 0; i < particleTailValue; i++){
-                particleTail[i] = new Rect();
+        public void randomColor(){
+            int random = new Random().nextInt(5);
+            if(random == 1){
+                // Purple
+                paint.setColor(Color.argb(255,  240, 62, 246));
             }
+            else if (random == 2){
+                // Green
+                paint.setColor(Color.argb(255,  129, 236, 189));
+            }
+            else{
+                // White
+                paint.setColor(Color.argb(255,  255, 255, 255));
+            }
+        }
+
+        public void randomTailLong(){
+            int random = new Random().nextInt(screenSizeX/13) + screenSizeX/38;
+            particleTailSizeX = random;
         }
 
         // Spawning particle
         public void spawnParticle(int spawnX, int spawnY){
+            // Randomize color
+            //randomColor();
+
+            // Set particle spawn point
             particlePositionX = spawnX;
             particlePositionY = spawnY;
             // Left, Top, Right, Buttom
@@ -112,15 +136,17 @@ public class Particle {
                     spawnY + particleSizeY
             );
 
-            for(int i = 0; i < particleTailValue; i++){
-                // Left, Top, Right, Buttom
-                particleTail[i].set(
-                        spawnX + adjustmentPositionX,
-                        spawnY + 0,
-                        spawnX + particleTailSizeX + adjustmentPositionX,
-                        spawnY + particleTailSizeY + adjustmentPositionY
-                );
-            }
+            // Randomize tail long
+            randomTailLong();
+            // Set the tail
+            particleTail = new Rect(
+                    spawnX + adjustmentPositionX,
+                    spawnY + adjustmentPositionY,
+                    spawnX + particleTailSizeX + adjustmentPositionX,
+                    spawnY + particleTailSizeY + adjustmentPositionY
+            );
+
+            // Set to active
             isActive = true;
         }
 
@@ -135,16 +161,14 @@ public class Particle {
                     particlePositionY + particleSizeY
             );
 
-            for(int i = 0; i < particleTailValue; i++){
-                particleTail[i].set(
-                        particlePositionX + adjustmentPositionX + (particleTailSizeX * i),
-                        particlePositionY + 0,
-                        particlePositionX + particleTailSizeX + adjustmentPositionX + (particleTailSizeX * i),
-                        particlePositionY + particleTailSizeY + adjustmentPositionY
-                );
-            }
+            particleTail.set(
+                    particlePositionX + adjustmentPositionX,
+                    particlePositionY + adjustmentPositionY,
+                    particlePositionX + particleTailSizeX + adjustmentPositionX,
+                    particlePositionY + particleTailSizeY + adjustmentPositionY
+            );
 
-            if(particlePositionX < -15) {
+            if(particlePositionX < -200) {
                 isActive = false;
             }
         }
@@ -152,10 +176,7 @@ public class Particle {
         // Draw particle
         public void draw(Canvas canvas){
             canvas.drawRect(theParticle, paint);
-
-            for(int i = 0; i < particleTailValue; i++){
-                canvas.drawRect(particleTail[i], paint);
-            }
+            canvas.drawRect(particleTail, paint);
         }
 
         // Just some get Method
