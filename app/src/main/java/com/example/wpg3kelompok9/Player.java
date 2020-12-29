@@ -26,21 +26,13 @@ public class Player {
     private int frameCountY  = 6;
     private int frameWidth   = 255;
     private int frameHeight  = 105;
-    private Rect frameToDraw = new Rect(
-            frameLoop + 0,
-            currentSprite + 0,
-            frameWidth + frameLoop,
-            frameHeight + currentSprite);
+    private Rect frameToDraw;
 
     // Player position
     private float playerXPosition;
     private float playerYPosition;
     // Left, Top, Right, Bottom
-    RectF whereToDraw = new RectF(
-            playerXPosition + 0,
-            playerYPosition + 0,
-            playerXPosition + frameWidth,
-            playerYPosition + frameHeight);
+    RectF whereToDraw;
 
     // Just some Paint
     Paint paint;
@@ -76,6 +68,20 @@ public class Player {
         // Save screen size
         screenSizeX = screenX;
         screenSizeY = screenY;
+
+        frameToDraw = new Rect(
+                frameLoop + 0,
+                currentSprite + 0,
+                frameWidth + frameLoop,
+                frameHeight + currentSprite
+        );
+
+        whereToDraw = new RectF(
+                playerXPosition + 0,
+                playerYPosition + 0,
+                playerXPosition + frameWidth,
+                playerYPosition + frameHeight
+        );
     }
 
 

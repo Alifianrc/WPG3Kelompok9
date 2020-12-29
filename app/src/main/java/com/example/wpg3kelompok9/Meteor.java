@@ -20,17 +20,13 @@ public class Meteor {
     int screenSizeX;
     int screenSizeY;
 
-    int frameWidth = 60;
-    int frameHeight = 60;
+    int frameWidth = 0;
+    int frameHeight = 0;
     int frameCount = 5;
     int currentFrame = 0;
     private int frameLengthInMilliseconds = 100;
     private long lastFrameChangeTime = 0;
-    private Rect frameToDraw = new Rect(
-            currentFrame + 0,
-            0,
-            frameWidth + currentFrame,
-            frameHeight + 0);
+    private Rect frameToDraw;
 
     boolean isMoving = false;
     boolean isDirected = false;
@@ -43,11 +39,7 @@ public class Meteor {
     int meteorYPosition;
     int tempSpeed;
     // Left, Top, Right, Bottom
-    RectF whereToDraw = new RectF(
-            meteorXPosition + 0,
-            meteorYPosition + 0,
-            meteorXPosition + frameWidth,
-            meteorYPosition + frameHeight);
+    RectF whereToDraw;
 
     private static final double SPEED_PIXEL_PER_SECOND = 300;
     private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS;
@@ -66,6 +58,19 @@ public class Meteor {
         paint = new Paint();
         paint.setColor(Color.argb(255, 255, 255, 255));
 
+        whereToDraw = new RectF(
+                meteorXPosition + 0,
+                meteorYPosition + 0,
+                meteorXPosition + frameWidth,
+                meteorYPosition + frameHeight
+        );
+
+        frameToDraw = new Rect(
+                currentFrame + 0,
+                0,
+                frameWidth + currentFrame,
+                frameHeight + 0
+        );
     }
 
     public void instantiateMeteor(int x, int y){

@@ -15,22 +15,13 @@ public class PowerUp {
     private long lastFrameChangeTime = 0;
     private int frameLoop    = 0;
     private int frameCount   = 2;
-    private Rect frameToDraw = new Rect(
-            frameLoop + 0,
-            0,
-            frameWidth + frameLoop,
-            frameHeight + 0
-    );
+    private Rect frameToDraw;
 
     // Enemy position
     private float powerUpXPosition;
     private float powerUpYPosition;
     // Left, Top, Right, Bottom
-    RectF whereToDraw = new RectF(
-            powerUpXPosition + 0,
-            powerUpYPosition + 0,
-            powerUpXPosition + frameWidth,
-            powerUpYPosition + frameHeight);
+    RectF whereToDraw;
     private boolean isActive = false;
     private static final double SPEED_PIXEL_PER_SECOND = 400;
     private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS * -1;
@@ -54,6 +45,19 @@ public class PowerUp {
 
         paint = new Paint();
         paint.setColor(Color.argb(255, 255, 255, 255));
+
+        whereToDraw = new RectF(
+                powerUpXPosition + 0,
+                powerUpYPosition + 0,
+                powerUpXPosition + frameWidth,
+                powerUpYPosition + frameHeight
+        );
+        frameToDraw = new Rect(
+                frameLoop + 0,
+                0,
+                frameWidth + frameLoop,
+                frameHeight + 0
+        );
     }
 
     public void draw(Canvas canvas) {

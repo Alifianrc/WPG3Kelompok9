@@ -21,29 +21,24 @@ public class Mothership {
 
     boolean goRight = true;
     boolean goDown = true;
-    int frameWidth = 500;
-    int frameHeight = 230;
+    int frameWidth = 0;
+    int frameHeight = 0;
     int frameCount = 4;
     int currentFrame = 0;
     private int frameLengthInMilliseconds = 200;
     private long lastFrameChangeTime = 0;
-    private Rect frameToDraw = new Rect(
-            currentFrame + 0,
-            0,
-            frameWidth + currentFrame,
-            frameHeight + 0);
+    private Rect frameToDraw;
 
     int mothershipXPosition;
     int mothershipYPosition;
     // Left, Top, Right, Bottom
-    RectF whereToDraw = new RectF(
-            mothershipXPosition + 0,
-            mothershipYPosition + 0,
-            mothershipXPosition + frameWidth,
-            mothershipYPosition + frameHeight);
+    RectF whereToDraw;
 
     private static final double SPEED_PIXEL_PER_SECOND = 100;
     private static final double MAX_SPEED = SPEED_PIXEL_PER_SECOND / GameLoop.MAX_UPS;
+
+    private int frameXSize;
+    private int frameYSize;
 
     public Mothership(int positionX, int positionY, Bitmap bitmapSource, int screenX, int screenY, int frameX, int frameY){
         mothershipXPosition = positionX;
@@ -61,6 +56,23 @@ public class Mothership {
         // Initialize
         paint = new Paint();
         paint.setColor(Color.argb(255, 255, 255, 255));
+
+        frameXSize = frameX;
+        frameYSize = frameY;
+
+        whereToDraw = new RectF(
+                mothershipXPosition + 0,
+                mothershipYPosition + 0,
+                mothershipXPosition + frameWidth,
+                mothershipYPosition + frameHeight
+        );
+
+        frameToDraw = new Rect(
+            currentFrame + 0,
+            0,
+            frameWidth + currentFrame,
+            frameHeight + 0
+        );
     }
 
     public void draw(Canvas canvas){
@@ -68,6 +80,8 @@ public class Mothership {
         canvas.drawBitmap(mothershipBitmap, frameToDraw, whereToDraw, paint);
 
         //paint.setTextSize(50);
+
+        //Just for Debugging
         //canvas.drawText("Mothership " + mothershipXPosition,200,500,paint);
     }
 
@@ -154,5 +168,12 @@ public class Mothership {
 
     public RectF getRectF(){
         return whereToDraw;
+    }
+
+    public int getFrameX(){
+        return frameXSize;
+    }
+    public int getFrameY(){
+        return frameYSize;
     }
 }

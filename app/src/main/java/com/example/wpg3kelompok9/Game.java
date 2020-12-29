@@ -9,18 +9,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.location.GnssAntennaInfo;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-
 import java.io.IOException;
 import java.util.Random;
 
@@ -50,7 +44,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private static final int bulletValue = 100;
     private int bulletCount = 0;
     public static int fireCoolDownSpeed = 250; // In milisecond
-    private long lastFireCoolDownTime = -3;
+    private long lastFireCoolDownTime = 0;
 
     // Ui default
     private int textSize;
@@ -64,7 +58,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int spawnEnemyCoolDownSpeed = 2000;
     private long lastEnemyCoolDownSpeed = 0;
     private int enemyAliveCount = 0;
-    private int enemySpawnValue = 3;
+    private int enemySpawnValue = 1;
 
     // Mothership
     private Mothership mothership;
@@ -77,7 +71,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private long lastMeteorCoolDownSpeed = 0;
     private int spawnMeteorCoolDownSpeed = 3000;
     private int meteorActiveCount = 0;
-    private int meteorSpawnValue = 4;
+    private int meteorSpawnValue = 1;
 
     // The powerUp
     // Gatling
@@ -116,8 +110,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private Button StartButton;
 
     // For laveling
-    private long lastIncreasingLevelTime = 0;
-    private int increasingLevelCooldownSpeed = 10000;
+    private int scoreThreshold = 170;
     private int currentLevel = 1;
 
     // Background particle
@@ -140,6 +133,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
                 if(StartButton.isPressed((double) event.getX(), (double) event.getY()) && !gameIsStarted){
                    gameIsStarted = true;
+                   startGame();
                 }
 
                 return true;
@@ -304,6 +298,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             descriptor = assetManager.openFd("shoot.ogg");
             shootID = soundPool.load(descriptor, 0);
 
+            // BGM masih tidak bisa
             //descriptor = assetManager.openFd("soundtrack.ogg");
             //soundtrackID = soundPool.load(descriptor, 0);
 
@@ -342,6 +337,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         drawFPS(canvas);
 
         if(gameIsStarted){
+            // UI
+            drawScore(canvas);
+            drawPlayerLivePoint(canvas);
+            drawMothershipLivePoint(canvas);
+
             //Looping for enemy
             for(int i = 0; i < enemyCount; i++){
                 if(enemy[i].getActive()){
@@ -381,13 +381,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
-            // UI
-            drawScore(canvas);
-            drawPlayerLivePoint(canvas);
-            drawMothershipLivePoint(canvas);
-
             // Only for Debugging
-            debugging(canvas);
+            // debugging(canvas);
+            // drawSize(canvas);
 
             // if Game is Over
             // Draw Game Over Panel
@@ -417,20 +413,6 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Level   : " + currentLevel,textPositionX*18,textPositionY*6,paint);
         drawScreenSize(canvas);
     }
-    public void drawUPS(Canvas canvas) {
-        String averageUPS = String.format("%.3f",gameLoop.getAverageUPS());
-        Paint paint = new Paint();
-        paint.setColor(Color.argb(255,  255, 0, 255));
-        paint.setTextSize(textSize);
-        canvas.drawText("UPS : " + averageUPS,textPositionX*13,textPositionY,paint);
-    }
-    public void drawFPS(Canvas canvas) {
-        String averageFPS = String.format("%.3f",gameLoop.getAverageFPS());
-        Paint paint = new Paint();
-        paint.setColor(Color.argb(255,  255, 0, 255));
-        paint.setTextSize(textSize);
-        canvas.drawText("FPS : " + averageFPS,textPositionX*13,textPositionY*2,paint);
-    }
     public void drawScreenSize(Canvas canvas){
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
@@ -438,8 +420,29 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Screen Size X : " + screenSizeX,textPositionX*6,textPositionY,paint);
         canvas.drawText("Screen Size Y : " + screenSizeY,textPositionX*6,textPositionY*2,paint);
     }
+    public void drawSize(Canvas canvas){
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 255));
+        paint.setTextSize(textSize);
+        canvas.drawText("Mothership X : " + mothership.getFrameX(),textPositionX * 5,textPositionY * 1,paint);
+        canvas.drawText("Mothership Y : " + mothership.getFrameY(),textPositionX * 5,textPositionY * 2,paint);
+    }
 
     // Ui
+    public void drawUPS(Canvas canvas) {
+        String averageUPS = String.format("%.3f",gameLoop.getAverageUPS());
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 255));
+        paint.setTextSize(textSize);
+        canvas.drawText("UPS : " + averageUPS,textPositionX*18,textPositionY,paint);
+    }
+    public void drawFPS(Canvas canvas) {
+        String averageFPS = String.format("%.3f",gameLoop.getAverageFPS());
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 255));
+        paint.setTextSize(textSize);
+        canvas.drawText("FPS : " + averageFPS,textPositionX*18,textPositionY*2,paint);
+    }
     public void drawScore(Canvas canvas){
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
@@ -469,6 +472,13 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize * 3);
         canvas.drawText("Push The Button to Start",screenSizeX/10,screenSizeY/2,paint);
+    }
+
+    public void startGame(){
+        lastEnemyCoolDownSpeed = System.currentTimeMillis();
+        lastFireCoolDownTime = System.currentTimeMillis();
+        lastMeteorCoolDownSpeed = System.currentTimeMillis();
+        lastPowerUpCoolDownSpeed = System.currentTimeMillis();
     }
 
     // Updating Game in here
@@ -574,13 +584,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // Reset Game Level
         resetLevel();
     }
+
     // Make seperate methoc for resetting game level
     public void resetLevel(){
         // Reset all of this value
         spawnEnemyCoolDownSpeed = 2000;
         spawnMeteorCoolDownSpeed = 3000;
-        spawnPowerUpCoolDownSpeed = 3000;
-        increasingLevelCooldownSpeed = 10000;
         currentLevel = 1;
         enemySpawnValue = 3;
         meteorSpawnValue = 4;
@@ -589,32 +598,30 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Increasing level by Play Time
     public void increaseLevel(){
         long time = System.currentTimeMillis();
-        if(time > lastIncreasingLevelTime + increasingLevelCooldownSpeed){
-            lastIncreasingLevelTime = time;
-
+        boolean isLevelUp = false;
+        if(score >= scoreThreshold){
+            scoreThreshold += score;
             // Make Enemy spawn quicker
             if(spawnEnemyCoolDownSpeed > 200){
                 spawnEnemyCoolDownSpeed -= 100;
+                isLevelUp = true;
             }
             // Make more Enemy spawned
             if(enemySpawnValue < 6){
                 enemySpawnValue++;
+                isLevelUp = true;
             }
             // Make Meteor spawn quicker
             if(spawnMeteorCoolDownSpeed > 500){
                 spawnMeteorCoolDownSpeed -= 250;
+                isLevelUp = true;
             }
             // Make more meteor spawned
             if(meteorSpawnValue < 10){
                 meteorSpawnValue++;
+                isLevelUp = true;
             }
-            // Make Power Up spawn longer
-            if(spawnPowerUpCoolDownSpeed < 3000){
-                spawnPowerUpCoolDownSpeed += 500;
-            }
-            // Make increasing level faster
-            if(increasingLevelCooldownSpeed > 2000){
-                increasingLevelCooldownSpeed -= 750;
+            if(isLevelUp){
                 currentLevel++;
             }
         }
@@ -625,7 +632,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         long time = System.currentTimeMillis();
         int coolDownTemp;
         if(gatlingIsActive){
-            coolDownTemp = fireCoolDownSpeed/5;
+            coolDownTemp = fireCoolDownSpeed/4;
             if(time > LastGatlingCoolDownTime + GatlingFireCoolDownTime){
                 gatlingIsActive = false;
             }

@@ -10,8 +10,8 @@ import android.graphics.RectF;
 public class Bullet {
 
     private Boolean isActive = false;
-    private int frameWidth = 50;
-    private int frameHeight = 20;
+    private int frameWidth = 0;
+    private int frameHeight = 0;
     private int frameCount = 1;
     private Paint paint;
     private float bulletXPosition;
@@ -21,17 +21,8 @@ public class Bullet {
     private int screenSizeX;
     private int screenSizeY;
     private Bitmap bulletBitmap;
-    private RectF whereToDraw = new RectF(
-            bulletXPosition + 0,
-            bulletYPosition + 0,
-            bulletXPosition + frameWidth,
-            bulletYPosition + frameHeight);
-    private int currentFrame = 0;
-    private Rect frameToDraw = new Rect(
-            0,
-            0,
-            frameWidth,
-            frameHeight);
+    private RectF whereToDraw;
+    private Rect frameToDraw;
 
     public Bullet(int frameX, int frameY, Bitmap bitmapSource){
         // Change frame size
@@ -41,6 +32,20 @@ public class Bullet {
         // Take the bullet Bitmap
         bulletBitmap = bitmapSource;
         bulletBitmap = Bitmap.createScaledBitmap(bulletBitmap, frameWidth * frameCount, frameHeight,false);
+
+        whereToDraw = new RectF(
+            bulletXPosition + 0,
+            bulletYPosition + 0,
+            bulletXPosition + frameWidth,
+            bulletYPosition + frameHeight
+        );
+
+        frameToDraw = new Rect(
+            0,
+            0,
+            frameWidth,
+            frameHeight
+        );
     }
 
     public boolean getActive(){
