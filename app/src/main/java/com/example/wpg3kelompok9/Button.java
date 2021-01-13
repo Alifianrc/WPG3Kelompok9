@@ -31,12 +31,17 @@ public class Button {
         return restartCenterToTouchDistance < restartCircleRadius;
     }
 
-    public void drawRestartButton(Canvas canvas){
+    public void drawRestartButton(Canvas canvas, int textSize, String theText){
         canvas.drawCircle(
                 restartCirclePositionX,
                 restartCirclePositionY,
                 restartCircleRadius,
                 paint
         );
+
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  0, 0, 0));
+        paint.setTextSize(textSize * 1.6f);
+        canvas.drawText(theText,restartCirclePositionX - (restartCircleRadius* 4/5),restartCirclePositionY + (restartCircleRadius/6),paint);
     }
 }

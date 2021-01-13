@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.media.AudioManager;
@@ -96,7 +97,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     int getItemSoundID = -1;
     int hitSoundID = -1;
     int shootID = -1;
-    int soundtrackID = -1;
+    // int soundtrackID = -1;
 
     // Public score for easy scoring
     public static int score = 0;
@@ -108,6 +109,13 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // The Button
     private Button Restartbutton;
     private Button StartButton;
+    private Button CreditButton;
+    private Button CreditBackButton;
+    private boolean creditScene;
+
+    // Logo
+    private Bitmap LogoPens;
+    private Bitmap LogoGt;
 
     // For laveling
     private int scoreThreshold = 170;
@@ -127,13 +135,21 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                     joystick.setIsPressed(true);
                 }
 
-                if(Restartbutton.isPressed((double) event.getX(), (double) event.getY()) && gameIsOver){
+                else if(Restartbutton.isPressed((double) event.getX(), (double) event.getY()) && gameIsOver && !creditScene){
                     resetTheGame();
                 }
 
-                if(StartButton.isPressed((double) event.getX(), (double) event.getY()) && !gameIsStarted){
+                else if(StartButton.isPressed((double) event.getX(), (double) event.getY()) && !gameIsStarted && !creditScene){
                    gameIsStarted = true;
                    startGame();
+                }
+
+                else if(CreditButton.isPressed((double) event.getX(), (double) event.getY()) && !creditScene && (!gameIsStarted || gameIsOver)){
+                    creditScene = true;
+                }
+
+                else if(CreditBackButton.isPressed((double) event.getX(), (double) event.getY()) && creditScene){
+                    creditScene = false;
                 }
 
                 return true;
@@ -270,8 +286,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
 
         // Button
-        Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 255, 0, 255);
-        StartButton = new Button(screenSizeX* 1/2,screenSizeY* 3/4,screenSizeY/8, 0, 255, 0);
+        Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 9/16,screenSizeY/7, 0, 255, 0);
+        StartButton = new Button(screenSizeX* 1/2,screenSizeY* 9/16,screenSizeY/7, 0, 255, 0);
+        CreditButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 255, 255, 0);
+        CreditBackButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 175, 0, 0);
+        creditScene = false;
+
+        // Logo
+        LogoPens = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_pens_mini);
+        LogoGt = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_gt_mini);
 
         // Set default text size and position
         textSize = screenY * 5/108;
@@ -336,7 +359,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         drawUPS(canvas);
         drawFPS(canvas);
 
-        if(gameIsStarted){
+        if(gameIsStarted && !creditScene){
             // UI
             drawScore(canvas);
             drawPlayerLivePoint(canvas);
@@ -387,15 +410,17 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
             // if Game is Over
             // Draw Game Over Panel
-            if(gameIsOver){
+            if(gameIsOver && !creditScene){
                 drawGameIsOver(canvas);
-                Restartbutton.drawRestartButton(canvas);
             }
         }
 
-        else if(!gameIsStarted){
+        else if(!gameIsStarted && !creditScene){
             drawGameIsStarted(canvas);
-            StartButton.drawRestartButton(canvas);
+        }
+
+        if(creditScene){
+            drawCredit(canvas);
         }
     }
 
@@ -462,16 +487,55 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Mothership Live : " + mothership.getLive(),textPositionX,textPositionY*3,paint);
     }
     public void drawGameIsOver(Canvas canvas){
+        // This method is for draw menu after Game Over
+        // Draw Title
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(255,  255, 0, 0));
+        paint.setTextSize(textSize * 6);
+        canvas.drawText("Game Over",screenSizeX/5,screenSizeY/3,paint);
+
+        // Draw Button
+        Restartbutton.drawRestartButton(canvas, textSize* 3/4, "RESTART");
+        CreditButton.drawRestartButton(canvas, textSize* 3/4, "Credit");
+
+    }
+    public void drawGameIsStarted(Canvas canvas){
+        // This method is for draw main menu
+        // Draw Title
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize * 5);
-        canvas.drawText("Game Over",screenSizeX/6,screenSizeY/2,paint);
+        canvas.drawText("GALAZI",screenSizeX/3.25f,screenSizeY/3,paint);
+
+        // Draw Button
+        StartButton.drawRestartButton(canvas, textSize, "START!");
+        CreditButton.drawRestartButton(canvas, textSize* 3/4, "Credit");
     }
-    public void drawGameIsStarted(Canvas canvas){
+    public void drawCredit(Canvas canvas){
+        // This method is for draw main menu
+        // Draw Title
         Paint paint = new Paint();
-        paint.setColor(Color.argb(255,  255, 0, 255));
-        paint.setTextSize(textSize * 3);
-        canvas.drawText("Push The Button to Start",screenSizeX/10,screenSizeY/2,paint);
+        paint.setColor(Color.argb(255,  255, 0, 100));
+        paint.setTextSize(textSize * 3.5f);
+        canvas.drawText("Kelompok 9",screenSizeX/4,screenSizeY* 16/36,paint);
+
+        // Draw Logo
+        paint.setColor(Color.argb(255,  255, 255, 255));
+        canvas.drawBitmap(LogoPens, screenSizeX* 1/10, screenSizeY* 1/36, paint);
+        canvas.drawBitmap(LogoGt, screenSizeX* 10/15, screenSizeY* 1/36, paint);
+
+        // Draw Anggota
+        paint.setColor(Color.argb(255,  255, 255, 100));
+        paint.setTextSize(textSize * 1.6f);
+        canvas.drawText("M. Alifian R.C.",screenSizeX * 1/10,screenSizeY* 7/12,paint);
+        canvas.drawText("Prawida Yumia",screenSizeX* 1/4,screenSizeY* 17/24,paint);
+        canvas.drawText("Mukrom Karunia A.",screenSizeX* 1/2,screenSizeY* 7/12,paint);
+
+        // Draw Button
+        CreditButton.drawRestartButton(canvas, textSize* 3/4, "Back");
+
+        paint.setTextSize(textSize * 1.2f);
+        canvas.drawText("2021",screenSizeX* 9/10,screenSizeY* 23/24,paint);
     }
 
     public void startGame(){
