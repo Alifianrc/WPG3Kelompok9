@@ -114,9 +114,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private boolean creditScene;
 
     // Logo
-    private Bitmap LogoPens;
-    private Bitmap LogoGt;
-    private Bitmap LogoGalazi;
+    private Logo logoPens;
+    private Bitmap BitmapLogoPens;
+    private Logo logoGt;
+    private Bitmap BitmapLogoGt;
+    private Logo logoGalazi;
+    private Bitmap BitmapLogoGalazi;
 
     // For laveling
     private int scoreThreshold = 170;
@@ -294,9 +297,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         creditScene = false;
 
         // Logo
-        LogoPens = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_pens_mini);
-        LogoGt = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_gt_mini);
-        LogoGalazi = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_455x95);
+        BitmapLogoPens = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_pens_mini);
+        logoPens = new Logo(screenY* 11/36,screenY* 11/36,BitmapLogoPens);
+        BitmapLogoGt = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_gt_mini);
+        logoGt = new Logo(screenY* 11/36,screenY* 11/36,BitmapLogoGt);
+        BitmapLogoGalazi = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_455x95);
+        logoGalazi = new Logo(screenX* 30/50,screenY* 20/60,BitmapLogoGalazi);
 
         // Set default text size and position
         textSize = screenY * 5/108;
@@ -508,7 +514,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         //paint.setColor(Color.argb(255,  255, 0, 255));
         //paint.setTextSize(textSize * 5);
         //canvas.drawText("GALAZI",screenSizeX/3.25f,screenSizeY/3,paint);
-        canvas.drawBitmap(LogoGalazi, screenSizeX* 7/30, screenSizeY* 1/12, paint);
+        //canvas.drawBitmap(BitmapLogoGalazi, screenSizeX* 7/30, screenSizeY* 1/12, paint);
+        logoGalazi.draw(canvas, screenSizeX* 7/30, screenSizeY* 1/12);
 
         // Draw Button
         StartButton.drawRestartButton(canvas, textSize, "START!");
@@ -520,12 +527,14 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  215, 85, 230));
         paint.setTextSize(textSize * 3.5f);
-        canvas.drawText("Kelompok 9",screenSizeX/4,screenSizeY* 16/36,paint);
+        canvas.drawText("Kelompok 9",screenSizeX* 18/64,screenSizeY* 16/36,paint);
 
         // Draw Logo
         paint.setColor(Color.argb(255,  255, 255, 255));
-        canvas.drawBitmap(LogoPens, screenSizeX* 1/10, screenSizeY* 1/36, paint);
-        canvas.drawBitmap(LogoGt, screenSizeX* 11/15, screenSizeY* 1/36, paint);
+        //canvas.drawBitmap(BitmapLogoPens, screenSizeX* 1/10, screenSizeY* 1/36, paint);
+        logoPens.draw(canvas, screenSizeX* 1/10, screenSizeY* 1/36);
+        //canvas.drawBitmap(BitmapLogoGt, screenSizeX* 11/15, screenSizeY* 1/36, paint);
+        logoGt.draw(canvas, screenSizeX* 11/15, screenSizeY* 1/36);
 
         // Draw Anggota
         paint.setColor(Color.argb(255,  255, 255, 100));
