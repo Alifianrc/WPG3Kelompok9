@@ -455,18 +455,18 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     // Ui
     public void drawUPS(Canvas canvas) {
-        String averageUPS = String.format("%.3f",gameLoop.getAverageUPS());
+        String averageUPS = String.format("%.0f",gameLoop.getAverageUPS());
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("UPS : " + averageUPS,textPositionX*18,textPositionY,paint);
+        canvas.drawText("UPS : " + averageUPS,textPositionX*19,textPositionY,paint);
     }
     public void drawFPS(Canvas canvas) {
-        String averageFPS = String.format("%.3f",gameLoop.getAverageFPS());
+        String averageFPS = String.format("%.0f",gameLoop.getAverageFPS());
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 255));
         paint.setTextSize(textSize);
-        canvas.drawText("FPS : " + averageFPS,textPositionX*18,textPositionY*2,paint);
+        canvas.drawText("FPS : " + averageFPS,textPositionX*19,textPositionY*2,paint);
     }
     public void drawScore(Canvas canvas){
         Paint paint = new Paint();
@@ -512,7 +512,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         CreditButton.drawRestartButton(canvas, textSize* 3/4, "Credit");
     }
     public void drawCredit(Canvas canvas){
-        // This method is for draw main menu
+        // This method is for draw Credit
         // Draw Title
         Paint paint = new Paint();
         paint.setColor(Color.argb(255,  255, 0, 100));
@@ -522,14 +522,14 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // Draw Logo
         paint.setColor(Color.argb(255,  255, 255, 255));
         canvas.drawBitmap(LogoPens, screenSizeX* 1/10, screenSizeY* 1/36, paint);
-        canvas.drawBitmap(LogoGt, screenSizeX* 10/15, screenSizeY* 1/36, paint);
+        canvas.drawBitmap(LogoGt, screenSizeX* 11/15, screenSizeY* 1/36, paint);
 
         // Draw Anggota
         paint.setColor(Color.argb(255,  255, 255, 100));
         paint.setTextSize(textSize * 1.6f);
         canvas.drawText("M. Alifian R.C.",screenSizeX * 1/10,screenSizeY* 7/12,paint);
-        canvas.drawText("Prawida Yumia",screenSizeX* 1/4,screenSizeY* 17/24,paint);
-        canvas.drawText("Mukrom Karunia A.",screenSizeX* 1/2,screenSizeY* 7/12,paint);
+        canvas.drawText("Prawida Yumia",screenSizeX* 6/20,screenSizeY* 17/24,paint);
+        canvas.drawText("Mukrom Karunia A.",screenSizeX* 10/20,screenSizeY* 7/12,paint);
 
         // Draw Button
         CreditButton.drawRestartButton(canvas, textSize* 3/4, "Back");
