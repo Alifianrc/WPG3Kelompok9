@@ -102,6 +102,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Public score for easy scoring
     public static int score = 0;
 
+    // For laveling
+    private int scoreThreshold = 120;
+    private int currentScoreThreshold = scoreThreshold;
+    private int currentLevel = 1;
+
     // Scene Controller
     private boolean gameIsOver = false;
     private boolean gameIsStarted = false;
@@ -121,14 +126,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private Logo logoGalazi;
     private Bitmap BitmapLogoGalazi;
 
-    // For laveling
-    private int scoreThreshold = 170;
-    private int currentLevel = 1;
-
     // Background particle
     Particle particle;
 
-    // End off first Declaration
+    // End off first Declaration or Global Variable
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -433,6 +434,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     // Just for debugging
+    /*
     public void debugging(Canvas canvas){
         // Debugging
         Paint paint = new Paint();
@@ -460,6 +462,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("Mothership X : " + mothership.getFrameX(),textPositionX * 5,textPositionY * 1,paint);
         canvas.drawText("Mothership Y : " + mothership.getFrameY(),textPositionX * 5,textPositionY * 2,paint);
     }
+     */
 
     // Ui
     public void drawUPS(Canvas canvas) {
@@ -673,17 +676,16 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     // Increasing level by Play Time
     public void increaseLevel(){
-        long time = System.currentTimeMillis();
         boolean isLevelUp = false;
-        if(score >= scoreThreshold){
-            scoreThreshold += score;
+        if(score >= currentScoreThreshold){
+            currentScoreThreshold += scoreThreshold;
             // Make Enemy spawn quicker
             if(spawnEnemyCoolDownSpeed > 200){
                 spawnEnemyCoolDownSpeed -= 100;
                 isLevelUp = true;
             }
             // Make more Enemy spawned
-            if(enemySpawnValue < 6){
+            if(enemySpawnValue < 10){
                 enemySpawnValue++;
                 isLevelUp = true;
             }
@@ -693,7 +695,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 isLevelUp = true;
             }
             // Make more meteor spawned
-            if(meteorSpawnValue < 10){
+            if(meteorSpawnValue < 8){
                 meteorSpawnValue++;
                 isLevelUp = true;
             }
