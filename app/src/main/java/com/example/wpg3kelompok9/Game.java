@@ -116,6 +116,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     // Logo
     private Bitmap LogoPens;
     private Bitmap LogoGt;
+    private Bitmap LogoGalazi;
 
     // For laveling
     private int scoreThreshold = 170;
@@ -287,14 +288,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         // Button
         Restartbutton = new Button(screenSizeX* 1/2,screenSizeY* 9/16,screenSizeY/7, 0, 255, 0);
-        StartButton = new Button(screenSizeX* 1/2,screenSizeY* 9/16,screenSizeY/7, 0, 255, 0);
-        CreditButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 255, 255, 0);
-        CreditBackButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 175, 0, 0);
+        StartButton = new Button(screenSizeX* 1/2,screenSizeY* 9/16,screenSizeY/7, 224, 61, 69);
+        CreditButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 237, 149, 71);
+        CreditBackButton = new Button(screenSizeX* 1/2,screenSizeY* 14/16,screenSizeY/11, 237, 149, 71);
         creditScene = false;
 
         // Logo
         LogoPens = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_pens_mini);
         LogoGt = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_gt_mini);
+        LogoGalazi = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo_455x95);
 
         // Set default text size and position
         textSize = screenY * 5/108;
@@ -503,9 +505,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // This method is for draw main menu
         // Draw Title
         Paint paint = new Paint();
-        paint.setColor(Color.argb(255,  255, 0, 255));
-        paint.setTextSize(textSize * 5);
-        canvas.drawText("GALAZI",screenSizeX/3.25f,screenSizeY/3,paint);
+        //paint.setColor(Color.argb(255,  255, 0, 255));
+        //paint.setTextSize(textSize * 5);
+        //canvas.drawText("GALAZI",screenSizeX/3.25f,screenSizeY/3,paint);
+        canvas.drawBitmap(LogoGalazi, screenSizeX* 7/30, screenSizeY* 1/12, paint);
 
         // Draw Button
         StartButton.drawRestartButton(canvas, textSize, "START!");
@@ -515,7 +518,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         // This method is for draw Credit
         // Draw Title
         Paint paint = new Paint();
-        paint.setColor(Color.argb(255,  255, 0, 100));
+        paint.setColor(Color.argb(255,  215, 85, 230));
         paint.setTextSize(textSize * 3.5f);
         canvas.drawText("Kelompok 9",screenSizeX/4,screenSizeY* 16/36,paint);
 
